@@ -1,28 +1,42 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FlatList } from 'react-native'
-import { TrackType } from '../track'
+import TrackPlayer, { Track as TrackType } from 'react-native-track-player'
 import Track from '../track'
 import styles from './styles'
 
 const TrackList: React.FC = () => {
+  const [tracks, setTracks] = React.useState<TrackType[]>([])
+
+  useEffect(() => {
+    TrackPlayer.getQueue().then(setTracks)
+  }, [])
+
+  const handleAddPress = () => {
+    TrackPlayer.add({
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    })
+    TrackPlayer.getQueue().then(setTracks)
+  }
+
   return (
     <FlatList<TrackType>
       style={styles.container}
-      data={[
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-        { title: 'track 1' },
-      ]}
-      renderItem={({ item: { title } }) => <Track title={title} />}
+      data={tracks}
+      ListHeaderComponent={() => (
+        <Track
+          preset='add'
+          track={{ url: '', title: 'Add song' }}
+          onPress={() => handleAddPress()}
+        />
+      )}
+      renderItem={({ item, index }) => (
+        <Track
+          track={item}
+          onPress={() => {
+            TrackPlayer.skip(index)
+          }}
+        />
+      )}
     />
   )
 }
