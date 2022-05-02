@@ -1,62 +1,28 @@
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import React from 'react'
-import { Text, View } from 'react-native'
-import LinearGradient from 'react-native-linear-gradient'
-import TrackList from './components/track-list'
-import ProgressBar from './components/progress-bar'
-import Controls from './components/controls'
-import TrackPlayer, {
-  Event,
-  Track as TrackType,
-  usePlaybackState,
-  useProgress,
-  useTrackPlayerEvents,
-} from 'react-native-track-player'
-import styles from './styles'
+import HomeScreen from './screens/home'
+import NewSongScreen from './screens/new-song'
+
+export type RootStackParamList = {
+  Home: undefined
+  NewSong: undefined
+}
+
+const Stack = createNativeStackNavigator<RootStackParamList>()
 
 const App: React.FC = () => {
-  const [currentTrack, setCurrentTrack] = React.useState<TrackType>()
-  const playbackState = usePlaybackState()
-  const progress = useProgress()
-
-  useTrackPlayerEvents([Event.PlaybackTrackChanged], async () => {
-    const trackIndex = await TrackPlayer.getCurrentTrack()
-    const queue = await TrackPlayer.getQueue()
-
-    setCurrentTrack(queue[trackIndex])
-  })
-
   return (
-    <>
-      <LinearGradient
-        colors={['#602727', '#602727', '#181818', '#181818']}
-        locations={[0, 0.4, 0.6, 1]}
-        style={styles.gradient}
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
       >
-        {/* imagem do album */}
-        <View style={styles.albumImageContainer}>
-          <View style={styles.albumImage} />
-        </View>
-
-        {/* titulo da playlist */}
-        <Text style={styles.playlistTitle}>My favorite songs</Text>
-
-        {/* perfil */}
-        <View style={styles.creatorImageContainer}>
-          <View style={styles.creatorImage} />
-          <Text style={styles.creatorName}>Frederico Breno</Text>
-        </View>
-
-        {/* lista de musicas */}
-        <TrackList />
-
-        {/* media player controls */}
-        <View>
-          {/* controls */}
-          <Controls currentTrack={currentTrack} state={playbackState} />
-          <ProgressBar progress={progress} />
-        </View>
-      </LinearGradient>
-    </>
+        <Stack.Screen name='Home' component={HomeScreen} />
+        <Stack.Screen name='NewSong' component={NewSongScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   )
 }
 

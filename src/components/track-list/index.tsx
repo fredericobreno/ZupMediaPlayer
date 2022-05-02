@@ -1,22 +1,30 @@
-import React, { useEffect } from 'react'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import React, { useCallback } from 'react'
 import { FlatList } from 'react-native'
 import TrackPlayer, { Track as TrackType } from 'react-native-track-player'
+import { RootStackParamList } from '../../App'
 import Track from '../track'
 import styles from './styles'
 
+type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'Home'>
+
 const TrackList: React.FC = () => {
   const [tracks, setTracks] = React.useState<TrackType[]>([])
-
-  useEffect(() => {
-    TrackPlayer.getQueue().then(setTracks)
-  }, [])
+  const { navigate } = useNavigation<HomeScreenProp>()
 
   const handleAddPress = () => {
-    TrackPlayer.add({
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    })
-    TrackPlayer.getQueue().then(setTracks)
+    navigate('NewSong')
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      ;(async () => {
+        const queue = await TrackPlayer.getQueue()
+        setTracks(queue)
+      })()
+    }, []),
+  )
 
   return (
     <FlatList<TrackType>
@@ -34,6 +42,7 @@ const TrackList: React.FC = () => {
           track={item}
           onPress={() => {
             TrackPlayer.skip(index)
+            TrackPlayer.play()
           }}
         />
       )}
